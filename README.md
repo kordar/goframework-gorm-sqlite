@@ -1,0 +1,1 @@
+# goframework-gorm-sqlite

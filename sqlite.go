@@ -15,14 +15,10 @@ func GetSqliteDB(db string) *gorm.DB {
 // InitSqliteHandle 初始化Sqlite句柄
 func InitSqliteHandle(dbs ...string) {
 	sqlitepool = godb.GetDbPool()
-	for _, s := range dbs {
-		ins := NewGormSqliteConnIns(s, gormConfig())
-		if ins == nil {
-			continue
-		}
-		err := sqlitepool.Add(ins)
+	for _, db := range dbs {
+		err := AddSqliteInstance(db)
 		if err != nil {
-			log.Warnf("[sqlite] 初始化异常，err=%v", err)
+			log.Warnf("初始化Sqlite异常，err=%v", err)
 		}
 	}
 }
@@ -37,4 +33,9 @@ func AddSqliteInstance(db string) error {
 // RemoveSqliteInstance 移除Sqlite句柄
 func RemoveSqliteInstance(db string) {
 	sqlitepool.Remove(db)
+}
+
+// HasSqliteInstance sqlite句柄是否存在
+func HasSqliteInstance(db string) bool {
+	return sqlitepool != nil && sqlitepool.Has(db)
 }

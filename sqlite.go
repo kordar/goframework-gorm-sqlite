@@ -8,7 +8,7 @@ import (
 )
 
 var (
-	sqlitepool = &godb.DbConnPool{}
+	sqlitepool = godb.NewDbPool()
 	dbLogLevel = "info"
 )
 

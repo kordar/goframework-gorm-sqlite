@@ -4,19 +4,44 @@ import (
 	"github.com/kordar/godb"
 	log "github.com/kordar/gologger"
 	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 )
 
-var sqlitepool *godb.DbConnPool
+var (
+	sqlitepool = &godb.DbConnPool{}
+	dbLogLevel = "info"
+)
 
 func GetSqliteDB(db string) *gorm.DB {
 	return sqlitepool.Handle(db).(*gorm.DB)
 }
 
+func SetDbLogLevel(level string) {
+	dbLogLevel = level
+}
+
+func gormConfig() *gorm.Config {
+	mysqlConfig := gorm.Config{}
+	if dbLogLevel == "error" {
+		mysqlConfig.Logger = logger.Default.LogMode(logger.Error)
+	}
+	if dbLogLevel == "warn" {
+		mysqlConfig.Logger = logger.Default.LogMode(logger.Warn)
+	}
+	if dbLogLevel == "info" {
+		mysqlConfig.Logger = logger.Default.LogMode(logger.Info)
+	}
+	return &mysqlConfig
+}
+
 // InitSqliteHandle 初始化Sqlite句柄
-func InitSqliteHandle(dbs ...string) {
-	sqlitepool = godb.GetDbPool()
-	for _, db := range dbs {
-		err := AddSqliteInstance(db)
+func InitSqliteHandle(dbs map[string]string) {
+	for db, dsn := range dbs {
+		ins := NewGormSqliteConnIns(db, dsn, gormConfig())
+		if ins == nil {
+			continue
+		}
+		err := sqlitepool.Add(ins)
 		if err != nil {
 			log.Warnf("初始化Sqlite异常，err=%v", err)
 		}
@@ -24,9 +49,8 @@ func InitSqliteHandle(dbs ...string) {
 }
 
 // AddSqliteInstance 添加Sqlite句柄
-func AddSqliteInstance(db string) error {
-	sqlitepool = godb.GetDbPool()
-	ins := NewGormSqliteConnIns(db, gormConfig())
+func AddSqliteInstance(db string, dsn string) error {
+	ins := NewGormSqliteConnIns(db, dsn, gormConfig())
 	return sqlitepool.Add(ins)
 }
 

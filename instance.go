@@ -1,11 +1,9 @@
 package goframework_redis
 
 import (
-	"github.com/kordar/gocfg"
 	log "github.com/kordar/gologger"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
-	"gorm.io/gorm/logger"
 )
 
 type GormSqliteConnIns struct {
@@ -13,23 +11,7 @@ type GormSqliteConnIns struct {
 	ins  *gorm.DB
 }
 
-func gormConfig() *gorm.Config {
-	dbLogLevel := gocfg.GetSystemValue("gorm_log_level")
-	mysqlConfig := gorm.Config{}
-	if dbLogLevel == "error" {
-		mysqlConfig.Logger = logger.Default.LogMode(logger.Error)
-	}
-	if dbLogLevel == "warn" {
-		mysqlConfig.Logger = logger.Default.LogMode(logger.Warn)
-	}
-	if dbLogLevel == "info" {
-		mysqlConfig.Logger = logger.Default.LogMode(logger.Info)
-	}
-	return &mysqlConfig
-}
-
-func NewGormSqliteConnIns(name string, config *gorm.Config) *GormSqliteConnIns {
-	dsn := gocfg.GetSectionValue(name, "data")
+func NewGormSqliteConnIns(name string, dsn string, config *gorm.Config) *GormSqliteConnIns {
 	ins, err := gorm.Open(sqlite.Open(dsn), config)
 	if err != nil {
 		log.Errorf("[sqlite] 初始化sqlite失败,dsn=%s,err=%v", dsn, err)

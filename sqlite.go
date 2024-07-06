@@ -1,4 +1,4 @@
-package goframework_redis
+package goframework_gorm_sqlite
 
 import (
 	"github.com/kordar/godb"

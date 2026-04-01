@@ -1,7 +1,7 @@
 package goframework_gorm_sqlite
 
 import (
-	log "github.com/kordar/gologger"
+	"log/slog"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 )
@@ -14,7 +14,7 @@ type GormSqliteConnIns struct {
 func NewGormSqliteConnIns(name string, dsn string, config *gorm.Config) *GormSqliteConnIns {
 	ins, err := gorm.Open(sqlite.Open(dsn), config)
 	if err != nil {
-		log.Errorf("[godb-sqlite] 初始化sqlite失败,dsn=%s,err=%v", dsn, err)
+		slog.Error("[godb-sqlite] 初始化sqlite失败", "dsn", dsn, "err", err)
 		return nil
 	}
 	return &GormSqliteConnIns{name: name, ins: ins}

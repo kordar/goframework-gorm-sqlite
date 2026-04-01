@@ -1,10 +1,10 @@
 package goframework_gorm_sqlite
 
 import (
+	"log/slog"
+
 	"github.com/kordar/godb"
-	log "github.com/kordar/gologger"
 	"gorm.io/gorm"
-	"gorm.io/gorm/logger"
 )
 
 var (
@@ -22,15 +22,7 @@ func SetDbLogLevel(level string) {
 
 func gormConfig() *gorm.Config {
 	mysqlConfig := gorm.Config{}
-	if dbLogLevel == "error" {
-		mysqlConfig.Logger = logger.Default.LogMode(logger.Error)
-	}
-	if dbLogLevel == "warn" {
-		mysqlConfig.Logger = logger.Default.LogMode(logger.Warn)
-	}
-	if dbLogLevel == "info" {
-		mysqlConfig.Logger = logger.Default.LogMode(logger.Info)
-	}
+	mysqlConfig.Logger = newSlogGormLogger(dbLogLevel)
 	return &mysqlConfig
 }
 
@@ -43,7 +35,7 @@ func AddSqliteInstances(dbs map[string]string) {
 		}
 		err := sqlitepool.Add(ins)
 		if err != nil {
-			log.Warnf("[godb-sqlite] 初始化Sqlite异常，err=%v", err)
+			slog.Warn("[godb-sqlite] 初始化Sqlite异常", "err", err)
 		}
 	}
 }
